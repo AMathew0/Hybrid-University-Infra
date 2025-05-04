@@ -7,8 +7,8 @@ Explore the folders to view specific technology stacks, architecture diagrams, w
 
 ## 📁 Hybrid University Infrastructure - Folder Structure
 
-```text
-Hybrid-University-Infra/
+```pgsql
+hybrid-university-infra/
 ├── 01-overview/
 │   └── README.md
 ├── 02-networking/
