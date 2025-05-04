@@ -1,11 +1,9 @@
-## 📡 1. Hybrid Connectivity Setup (GCP ↔ On-premises / Azure / Microsoft 365)
-
-```markdown
 # GCP Hybrid Connectivity, Security Practices, and Measures  
 **Hybrid University – Google Cloud Platform Integration**
 
 ---
 
+## 📡 1. Hybrid Connectivity Setup (GCP ↔ On-premises / Azure / Microsoft 365)
 
 ### 1.1 Purpose
 
@@ -16,7 +14,7 @@ Ensure secure, scalable, and low-latency integration between GCP services (Fireb
 ### 1.2 Connectivity Options
 
 | Method                          | Use Case                                               | Notes                             |
-|----------------------------------|--------------------------------------------------------|------------------------------------|
+|---------------------------------|--------------------------------------------------------|------------------------------------|
 | Cloud VPN (IPSec)               | Connect on-prem or Azure to GCP VPC                    | Site-to-site encryption            |
 | Cloud Interconnect (Partner)    | High-throughput dedicated link (optional)              | Costly, not ideal for EDU          |
 | Identity Federation (Azure AD)  | Link Firebase/GCP IAM to Azure AD users (SSO)          | SAML 2.0 support                   |
@@ -50,11 +48,11 @@ Ensure secure, scalable, and low-latency integration between GCP services (Fireb
 
 ### 2.1 Identity & Access Management (IAM)
 
-| Role Name              | Scope                            | Assigned To                    |
-|------------------------|----------------------------------|--------------------------------|
-| Firebase Admin         | All Firebase services            | App developers                 |
-| Data Analyst           | BigQuery viewer/editor           | University analytics team      |
-| GCP Network Admin      | VPN, VPC management              | Infra/network admin            |
+| Role Name         | Scope                     | Assigned To               |
+|-------------------|---------------------------|----------------------------|
+| Firebase Admin    | All Firebase services     | App developers             |
+| Data Analyst      | BigQuery viewer/editor    | University analytics team  |
+| GCP Network Admin | VPN, VPC management       | Infra/network admin        |
 
 - Use **Principle of Least Privilege**
 - Enable **2FA/MFA** for all IAM users
@@ -64,65 +62,63 @@ Ensure secure, scalable, and low-latency integration between GCP services (Fireb
 
 ### 2.2 Network Security
 
-- Use **VPC firewalls** to allow only necessary ports/IPs
-- Set up **Cloud Armor** for web traffic protection (optional)
-- Implement **Private Google Access** to reduce public exposure
+- Use **VPC firewalls** to allow only necessary ports/IPs  
+- Set up **Cloud Armor** for web traffic protection (optional)  
+- Implement **Private Google Access** to reduce public exposure  
 
 ---
 
 ### 2.3 Firebase Security
 
-| Firebase Feature       | Security Measure                                      |
-|------------------------|--------------------------------------------------------|
-| Authentication         | Enable MFA, enforce strong password policies           |
-| Firestore Rules        | Use role-based access, timestamp checks                |
-| Hosting                | Enforce HTTPS, add custom domain SSL                   |
-| FCM                    | Token-based push delivery only                         |
-| Realtime Database      | Restrict anonymous access via database.rules.json      |
+| Firebase Feature      | Security Measure                                     |
+|-----------------------|-------------------------------------------------------|
+| Authentication        | Enable MFA, enforce strong password policies         |
+| Firestore Rules       | Use role-based access, timestamp checks              |
+| Hosting               | Enforce HTTPS, add custom domain SSL                 |
+| FCM                   | Token-based push delivery only                       |
+| Realtime Database     | Restrict anonymous access via `database.rules.json`  |
 
 ---
 
 ### 2.4 Logging & Monitoring
 
-- Enable **Cloud Audit Logs** for IAM, VPC, BigQuery
-- Use **Firebase Analytics** for app behavior monitoring
-- Optionally integrate with **Cloud Monitoring** dashboards
+- Enable **Cloud Audit Logs** for IAM, VPC, BigQuery  
+- Use **Firebase Analytics** for app behavior monitoring  
+- Optionally integrate with **Cloud Monitoring** dashboards  
 
 ---
 
 ## 🛡️ 3. Data Protection & Compliance
 
-- **Backups**: Use scheduled exports of Firestore to **Cloud Storage**
-- **Data Residency**: Choose region `asia-south1` (Mumbai) or as per compliance
+- **Backups**: Use scheduled exports of Firestore to **Cloud Storage**  
+- **Data Residency**: Choose region `asia-south1` (Mumbai) or as per compliance  
 - **Encryption**:
-  - At rest: Enabled by default using Google-managed keys
-  - In transit: TLS 1.2+ used across services
+  - At rest: Enabled by default using Google-managed keys  
+  - In transit: TLS 1.2+ used across services  
 
 ---
 
 ## 🧾 4. Cost Monitoring & Alerts
 
-- Enable **Billing Alerts**: Budget thresholds for Firebase & BigQuery
+- Enable **Billing Alerts**: Budget thresholds for Firebase & BigQuery  
 - Set **Quotas** on:
-  - BigQuery query usage
-  - Firebase Cloud Function invocations
-  - Cloud Storage usage
+  - BigQuery query usage  
+  - Firebase Cloud Function invocations  
+  - Cloud Storage usage  
 
 ---
 
 ## ✅ Summary
 
-| Area                    | Key Practice                                         |
-|-------------------------|------------------------------------------------------|
-| Hybrid Connectivity     | GCP VPN + Azure Site-to-Site                         |
-| Identity Management     | SAML Federation with Azure AD                        |
-| App Security            | Firebase Rules, 2FA, Secure Hosting                  |
-| Networking              | VPC, Private Access, NAT, minimal public exposure    |
-| Compliance              | India-based data region, default encryption          |
-| Monitoring              | Logs, alerts, usage quota monitoring                 |
+| Area                | Key Practice                                          |
+|---------------------|-------------------------------------------------------|
+| Hybrid Connectivity | GCP VPN + Azure Site-to-Site                          |
+| Identity Management | SAML Federation with Azure AD                         |
+| App Security        | Firebase Rules, 2FA, Secure Hosting                   |
+| Networking          | VPC, Private Access, NAT, minimal public exposure     |
+| Compliance          | India-based data region, default encryption           |
+| Monitoring          | Logs, alerts, usage quota monitoring                  |
 
 > Google Cloud acts as an **extension platform** for Hybrid University — not for core identity or LMS hosting. It enables secure, reliable, and cost-efficient mobile applications and analytics.
 
 ---
-
-```
