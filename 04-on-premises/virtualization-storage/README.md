@@ -1,124 +1,96 @@
-# 🖥️ On-Premises Virtualization & Storage Setup – Hybrid University
+# 🖥️ On-Premises Virtualization and Storage Setup – Hybrid University
 
-This section details the on-premises virtualization and storage setup at Hybrid University. The setup ensures that the university's virtual infrastructure is scalable, highly available, and optimized for performance. It includes virtualization technologies for hosting various services and centralized storage solutions for data management.
-
-## 🏢 Virtualization & Storage Overview
-
-| **Technology**     | **Location**         | **Role/Service**                         | **Key Functions**                               |
-|--------------------|----------------------|------------------------------------------|-------------------------------------------------|
-| **Virtualization** | India HQ, Dubai Branch, India Branch | Virtual Machine Hosting, Resource Allocation | Host virtual machines (VMs) for various services, optimize resource usage |
-| **Storage**        | India HQ, Dubai Branch, India Branch | Centralized Storage, Backup Solutions     | Provide shared storage, backup, and high availability for critical data |
+This section outlines the virtualization and storage infrastructure for Hybrid University. The setup focuses on using **Proxmox VE 8.1** as the preferred hypervisor over ESXi for cost-effectiveness, along with **TrueNAS CORE** for network-attached storage (NAS), including NFS/SMB shares and ZFS replication. The solution also includes network segmentation, VLAN configurations, IP addressing strategies, and backup management.
 
 ---
 
-## 🔌 Virtualization Infrastructure
+## 🔧 Virtualization
 
-Virtualization is deployed across three sites, providing scalable and efficient use of hardware resources for hosting various virtual machines (VMs). The following outlines the virtualization infrastructure:
+The virtualization infrastructure is deployed using **Proxmox VE 8.1**. This solution provides a powerful and flexible hypervisor for managing virtual machines (VMs) and containers. Proxmox VE is chosen over ESXi due to its cost-effectiveness and feature set suitable for Hybrid University's needs.
 
-| **VM Host ID**    | **Hypervisor**      | **CPU**                | **RAM**               | **Storage**           | **Site**             |
-|-------------------|---------------------|------------------------|-----------------------|-----------------------|----------------------|
-| **VM-Host-01**    | VMware ESXi 7.0     | 16 vCPUs               | 64 GB                 | 2 TB SAN Storage      | India HQ             |
-| **VM-Host-02**    | VMware ESXi 7.0     | 12 vCPUs               | 48 GB                 | 1 TB NAS Storage      | Dubai Branch         |
-| **VM-Host-03**    | VMware ESXi 7.0     | 16 vCPUs               | 64 GB                 | 2 TB SAN Storage      | India Branch         |
-
-### Notes:
-- **VM Hosts** are configured with VMware ESXi as the hypervisor for running various virtual machines that host internal applications, databases, and other services.
-- **VMs** are dynamically allocated based on workload requirements, ensuring optimal resource usage across the virtualized infrastructure.
-- **Storage** for VMs is provisioned using high-performance SAN and NAS solutions, ensuring redundancy and reliability.
+### Key Features:
+- **Hypervisor**: Proxmox VE 8.1
+- **Virtual Machines**: Virtualize critical workloads, such as file servers, application servers, and database servers.
+- **LXC Containers**: Lightweight containerization for less resource-intensive applications.
+- **High Availability**: Clustering and automatic failover to ensure uninterrupted services.
 
 ---
 
-## 💾 Storage Infrastructure
+## 🗄️ Storage – TrueNAS CORE
 
-The storage infrastructure at Hybrid University is designed to ensure high availability, reliability, and scalability for critical data. Below is the breakdown of the storage solutions:
+The storage infrastructure is based on **TrueNAS CORE**, which provides reliable and scalable storage for both network file shares (NFS/SMB) and data replication using ZFS.
 
-| **Storage Solution**   | **Type**            | **Capacity**         | **Location**         | **Services**                  |
-|------------------------|---------------------|----------------------|----------------------|-------------------------------|
-| **SAN Storage**        | Fibre Channel       | 4 TB                 | India HQ             | Centralized VM storage, backups |
-| **NAS Storage**        | iSCSI               | 3 TB                 | Dubai Branch         | Shared storage for applications |
-| **Cloud Storage**      | AWS S3              | 10 TB                | All Sites            | Backup, data archival          |
+### Storage Features:
+- **TrueNAS CORE**:
+  - **NFS/SMB Shares**: Shared network storage accessible across the university's various departments and locations.
+  - **ZFS Replication**: For high availability and disaster recovery, TrueNAS uses **ZFS replication** to ensure data consistency and backup at multiple sites.
+  - **Storage Pools**: ZFS pools provide efficient storage management with built-in data integrity checks.
+  
+### Storage Layout:
+- **IP Addressing**: Each storage node will have a static IP within the private network to facilitate easy access and management.
+  - **Example**: `192.168.10.20` for India HQ, `192.168.40.20` for Dubai Branch.
+  
+---
 
-### Key Points:
-- **SAN Storage** provides centralized and high-speed storage for VMs and mission-critical applications. The storage solution is based on Fibre Channel technology to ensure low latency and high throughput.
-- **NAS Storage** is used for shared storage solutions across branches, supporting file sharing and collaboration.
-- **Cloud Storage** is integrated with the university’s cloud infrastructure for off-site backup and data archival, leveraging AWS S3 storage for scalability and durability.
+## 🌐 Network Segmentation and VLANs
+
+To ensure security and optimized performance, **network segmentation** is implemented using VLANs. This structure isolates various network traffic types, reducing congestion and improving security.
+
+### VLAN Configuration:
+- **VLAN 10 - Management Network**: For administrative access to servers and storage.
+- **VLAN 20 - Virtualization Network**: Dedicated VLAN for Proxmox and virtual machine traffic.
+- **VLAN 30 - Storage Network**: Isolated network for TrueNAS storage replication and file sharing.
+- **VLAN 40 - Backup Network**: Dedicated VLAN for backup traffic to ensure minimal impact on other services.
+
+### IP Addressing:
+- **Proxmox VE**: Each Proxmox node will be assigned a static IP within the **Virtualization Network (VLAN 20)**.
+  - Example: `192.168.20.10` for Proxmox node at India HQ.
+  
+- **TrueNAS**: Storage nodes will be placed within the **Storage Network (VLAN 30)** with static IPs:
+  - Example: `192.168.30.10` for India HQ storage node.
 
 ---
 
-## 🛠️ Backup & Disaster Recovery
+## 💾 Backup Strategy
 
-A comprehensive backup and disaster recovery plan is in place to ensure the integrity and availability of the university's data.
+A robust **backup strategy** is essential for ensuring data integrity and recovery in case of failure.
 
-### Backup Solutions:
-- **VM Snapshots**: Regular snapshots of VMs are taken to ensure minimal downtime during failures or maintenance. Snapshots are taken at the following intervals:
-  - **Daily** for critical VMs.
-  - **Weekly** for non-critical VMs.
-- **Data Backups**: Critical data on NAS and SAN storage is backed up daily to AWS S3 to ensure off-site storage for disaster recovery. Backup frequency is as follows:
-  - **Full Backup**: Once a month (all data).
-  - **Incremental Backup**: Daily (changed data).
-  - **Differential Backup**: Weekly (data changes since the last full backup).
+### Backup Strategy Components:
+1. **Backup Duration**: 
+   - **Daily Backups**: Full backups of critical systems, databases, and virtual machines.
+   - **Weekly Full Backups**: Full backup of TrueNAS storage volumes.
+   - **Monthly Archival Backups**: Offline backups stored off-site or in cloud storage.
 
-### Disaster Recovery Plan:
-- **Failover Sites**: The virtualization infrastructure is designed with high availability in mind, ensuring failover capabilities across sites.
-- **Data Replication**: Critical data on the SAN and NAS systems is replicated between sites to provide redundancy in case of site failure.
+2. **Backup Tools**:
+   - **TrueNAS CORE Replication**: ZFS snapshots and replication ensure high availability and disaster recovery.
+   - **Proxmox VE Backup**: Utilizes Proxmox’s native backup solution for VM-level backups.
 
----
-
-## 🌐 Network Segmentation & VLAN Configuration
-
-To ensure security, efficiency, and optimal network performance, Hybrid University utilizes network segmentation and VLANs. Below is an overview of the network segmentation and VLANs deployed across the sites:
-
-### VLANs Configuration:
-| **VLAN ID** | **VLAN Name**       | **Subnet**          | **Purpose**                               | **Devices**                     |
-|-------------|---------------------|---------------------|-------------------------------------------|---------------------------------|
-| **10**      | **Management VLAN**  | `192.168.10.0/24`   | Network Management, Admin Access         | VM Hosts, Network Devices       |
-| **20**      | **Application VLAN** | `192.168.20.0/24`   | Application Servers                      | Web, Database Servers           |
-| **30**      | **Storage VLAN**     | `192.168.30.0/24`   | Shared Storage, Backup Servers           | NAS, SAN Storage                |
-| **40**      | **User VLAN**        | `192.168.40.0/24`   | User Workstations, Faculty, Staff        | PCs, Laptops                    |
-| **50**      | **Guest VLAN**       | `192.168.50.0/24`   | Guest Access, Public Internet            | Wireless Access Points (WAPs)   |
-
-### Network Segmentation:
-- **Security**: Each VLAN is isolated using **firewall rules** and **ACLs** to restrict unauthorized access between different network segments.
-- **Performance**: VLANs reduce broadcast traffic and improve network efficiency by grouping devices based on their functions (e.g., User, Storage, Application).
-- **Access Control**: VLANs are enforced with role-based access controls (RBAC), ensuring that only authorized users can access sensitive services or storage resources.
-
-### IP Addressing Scheme:
-- **Static IPs** are assigned to network devices such as **VM Hosts**, **NAS**, **SAN**, and **switches** for reliable access and management.
-- **Dynamic IPs** are assigned to **workstations** and **laptops** using DHCP within the appropriate VLAN subnets.
+3. **Backup Retention**:
+   - Retain daily backups for 7 days, weekly backups for 4 weeks, and monthly backups for 6 months.
 
 ---
 
-## 🛡️ Security Measures
+## 🔄 Patch Management
 
-To ensure the security of virtualized infrastructure and storage, the following measures are in place:
+To maintain the integrity and security of the infrastructure, regular patching of both **Proxmox VE** and **TrueNAS CORE** systems is carried out.
 
-### 1. **Encryption**:
-- **Storage Encryption**: All data stored on SAN and NAS devices is encrypted to prevent unauthorized access.
-- **VM Encryption**: Virtual machines are encrypted using built-in encryption features provided by VMware.
-
-### 2. **Access Control**:
-- **Role-Based Access Control (RBAC)** is implemented to restrict access to virtualized infrastructure and storage based on user roles.
-- **Network Segmentation**: Virtualized environments are segmented into secure networks (VLANs) to prevent unauthorized access between different services.
-
-### 3. **Monitoring & Alerts**:
-- **Zabbix** is used to monitor the health and performance of virtualized infrastructure, ensuring proactive management of resources.
-- **Graylog** is integrated to monitor logs from storage and virtualization systems for any suspicious activities or failures.
+### Patch Management Strategy:
+- **Windows Server Update Services (WSUS)**: Used for managing and deploying Windows patches across the network.
+- **PDQ Deploy (Free)**: Automates patch deployment on non-Windows systems and helps ensure consistency in updates.
 
 ---
 
 ## ✅ Summary Table
 
-| **Host Name**       | **Hypervisor**    | **Storage Type**  | **Location**         | **Key Services**             | **Security Features**      |
-|---------------------|-------------------|-------------------|----------------------|-----------------------------|----------------------------|
-| **VM-Host-01**      | VMware ESXi 7.0   | SAN Storage       | India HQ             | VM Hosting, Application Hosting | Encryption, RBAC           |
-| **VM-Host-02**      | VMware ESXi 7.0   | NAS Storage       | Dubai Branch         | VM Hosting, Internal Services  | Encryption, RBAC           |
-| **VM-Host-03**      | VMware ESXi 7.0   | SAN Storage       | India Branch         | VM Hosting, Application Hosting | Encryption, RBAC           |
-| **SAN Storage**     | Fibre Channel     | 4 TB              | India HQ             | VM Storage, Backup            | Encryption                 |
-| **NAS Storage**     | iSCSI             | 3 TB              | Dubai Branch         | Shared Storage                | Encryption                 |
-| **Cloud Storage**   | AWS S3            | 10 TB             | All Sites            | Backup, Archival              | Encryption                 |
+| **Component**      | **Solution**            | **Key Features**                        | **IP Addressing**          |
+|--------------------|-------------------------|----------------------------------------|----------------------------|
+| **Hypervisor**     | Proxmox VE 8.1          | VM and container management, High Availability | Static IPs on VLAN 20 |
+| **Storage**        | TrueNAS CORE            | NFS/SMB Shares, ZFS Replication        | Static IPs on VLAN 30 |
+| **Backup**         | ZFS Replication, Proxmox Backup | Daily and weekly backups, Data replication | Retention: Daily 7 days, Weekly 4 weeks |
+| **Patch Management** | WSUS + PDQ Deploy Free | Windows patch management, Automated updates | Managed across all servers |
 
 ---
 
 ## 💼 Conclusion
 
-The virtualization and storage infrastructure at Hybrid University provides a robust, scalable, and secure foundation for hosting critical services and applications. By leveraging VMware for virtualization and integrating high-performance storage solutions, the university ensures high availability and reliability across its on-premises services. The integration with cloud storage also enhances the backup and disaster recovery capabilities, offering a comprehensive strategy for data protection and business continuity. Additionally, network segmentation using VLANs ensures that the virtualized infrastructure remains secure and efficient.
+The virtualization and storage infrastructure for Hybrid University ensures high availability, data integrity, and secure management of virtualized workloads. By utilizing **Proxmox VE 8.1** for virtualization and **TrueNAS CORE** for storage, the setup offers cost-effective solutions without compromising performance. The implementation of VLANs and a solid backup strategy further secures the university's critical infrastructure. Patch management tools ensure the environment stays secure and up-to-date with minimal manual intervention.
