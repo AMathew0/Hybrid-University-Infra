@@ -1,5 +1,5 @@
 
-# 🔐 Step 6: Identity & Authentication Architecture 
+# 🔐 Identity & Authentication Architecture 
 
 This is a **core component** of the system, ensuring seamless login, secure access control, and unified identity management for students, faculty, staff, and IT teams across **on-prem** and **cloud systems**.
 
