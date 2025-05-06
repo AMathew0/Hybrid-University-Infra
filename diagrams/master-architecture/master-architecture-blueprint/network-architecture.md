@@ -1,5 +1,5 @@
 
-# 🧩 Step 7: Network Architecture Design
+# 🧩 Network Architecture Design
 
 ---
 
